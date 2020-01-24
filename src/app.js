@@ -3,14 +3,24 @@ const chalk = require('chalk');
 const path = require('path');
 const route = require('./helper/route');
 
-const { hostname, port, root } = require('./config/default');
+const defaultConfig = require('./config/default');
 
-const server = http.createServer((req, res) => {
-  const filePath = path.join(root, req.url);
-  route(req, res, filePath);
-});
+class Server {
+  constructor(config) {
+    this.config = { ...defaultConfig, ...config };
+  }
 
-server.listen(port, hostname, () => {
-  const address = `http://${hostname}:${port}`;
-  console.log(`Server started at ${chalk.green(address)}`);
-});
+  start() {
+    const server = http.createServer((req, res) => {
+      const filePath = path.join(this.config.root, req.url);
+      route(req, res, filePath, this.config);
+    });
+
+    server.listen(this.config.port, this.config.hostname, () => {
+      const address = `http://${this.config.hostname}:${this.config.port}`;
+      console.log(`Server started at ${chalk.green(address)}`);
+    });
+  }
+}
+
+module.exports = Server;

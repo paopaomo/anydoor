@@ -2,7 +2,6 @@ const fs = require('fs');
 const promisify = require('util').promisify;
 const path = require('path');
 const Handlebars = require('handlebars');
-const config = require('../config/default');
 const mime = require('./mime');
 const compress = require('./compress');
 const range = require('./range');
@@ -15,7 +14,7 @@ const tplPath = path.join(__dirname, '../template/dir.tpl');
 const source = fs.readFileSync(tplPath);
 const template = Handlebars.compile(source.toString());
 
-const route = (req, res, filePath) => {
+const route = (req, res, filePath, config) => {
   stat(filePath)
     .then(stat => {
       if (stat.isFile()) {
