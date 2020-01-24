@@ -2,8 +2,9 @@ const fs = require('fs');
 const promisify = require('util').promisify;
 const path = require('path');
 const Handlebars = require('handlebars');
-const { root } = require('../config/default');
+const config = require('../config/default');
 const mime = require('./mime');
+const compress = require('./compress');
 
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
@@ -19,13 +20,17 @@ const route = (req, res, filePath) => {
         const contentType = mime(filePath);
         res.statusCode = 200;
         res.setHeader('Content-Type', contentType);
-        fs.createReadStream(filePath).pipe(res);
+        let rs = fs.createReadStream(filePath);
+        if (filePath.match(config.compress)) {
+          rs = compress(rs, req, res);
+        }
+        rs.pipe(res);
       }
       if (stat.isDirectory()) {
         readdir(filePath).then(files => {
           res.statusCode = 200;
           res.setHeader('Content-Type', 'text/html');
-          const dir = path.relative(root, filePath);
+          const dir = path.relative(config.root, filePath);
           const data = {
             title: path.basename(filePath),
             files: files.map(file => ({
