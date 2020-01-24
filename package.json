@@ -41,5 +41,8 @@
     "lint-staged": "^10.0.2",
     "prettier": "^1.19.1",
     "prettier-eslint-cli": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0"
   }
 }
