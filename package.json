@@ -43,6 +43,7 @@
     "prettier-eslint-cli": "^5.0.0"
   },
   "dependencies": {
-    "chalk": "^3.0.0"
+    "chalk": "^3.0.0",
+    "handlebars": "^4.7.2"
   }
 }
