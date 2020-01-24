@@ -5,6 +5,7 @@ const Handlebars = require('handlebars');
 const config = require('../config/default');
 const mime = require('./mime');
 const compress = require('./compress');
+const range = require('./range');
 
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
@@ -18,9 +19,16 @@ const route = (req, res, filePath) => {
     .then(stat => {
       if (stat.isFile()) {
         const contentType = mime(filePath);
-        res.statusCode = 200;
         res.setHeader('Content-Type', contentType);
-        let rs = fs.createReadStream(filePath);
+        let rs;
+        const { code, start, end } = range(stat.size, req, res);
+        if (code === 200) {
+          res.statusCode = 200;
+          rs = fs.createReadStream(filePath);
+        } else {
+          res.statusCode = 206;
+          rs = fs.createReadStream(filePath, { start, end });
+        }
         if (filePath.match(config.compress)) {
           rs = compress(rs, req, res);
         }
